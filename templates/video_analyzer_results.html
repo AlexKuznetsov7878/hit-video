@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Video analysis result</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .column {
+            flex: 1;
+            max-width: 48%;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+            padding: 20px;
+            border-radius: 8px;
+            margin: 10px;
+        }
+
+        .column h2 {
+            font-size: 20px;
+            border-bottom: 2px solid #ddd;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .hebrew {
+            direction: rtl;
+            text-align: right;
+        }
+
+        .english {
+            direction: ltr;
+            text-align: left;
+        }
+
+        pre {
+            font-size: 16px;
+            line-height: 1.6;
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            word-wrap: break-word;
+        }
+
+        button {
+            font-size: 14px;
+            padding: 10px 15px;
+            background-color: #007BFF;
+            color: #ffffff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="column hebrew">
+        <h2>Original text transcribe</h2>
+        <pre id="hebrewContent">{{whisper_response_original}}</pre>
+        <pre id="hebrewSummary">{{response_original_summary}}</pre>
+        <button onclick="downloadText('hebrewContent', 'hebrewSummary', 'hebrew_content.txt')">Download Hebrew Content</button>
+    </div>
+
+    <div class="column english">
+        <h2>English text transcribe</h2>
+        <pre id="englishContent">{{whisper_response_translate}}</pre>
+        <pre id="englishSummary">{{response_translate_summary}}</pre>
+        <button onclick="downloadText('englishContent', 'englishSummary', 'english_content.txt')">Download English Content</button>
+    </div>
+
+    <script>
+        window.addEventListener('DOMContentLoaded', (event) => {
+            document.querySelectorAll('pre').forEach(pre => {
+                let lines = pre.textContent.split('\n');
+                let newContent = [];
+
+                lines.forEach(line => {
+                    let words = line.split(' ');
+
+                    while (words.length) {
+                        newContent.push(words.splice(0, 10).join(' '));
+                    }
+                });
+
+                pre.textContent = newContent.join('\n');
+            });
+        });
+
+        function downloadText(contentId1, contentId2, filename) {
+            let content1 = document.getElementById(contentId1).textContent;
+            let content2 = document.getElementById(contentId2).textContent;
+            let combinedContent = content1 + '\n\n' + content2;
+            let blob = new Blob([combinedContent], { type: "text/plain" });
+            let url = URL.createObjectURL(blob);
+
+            let a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+
+</html>
